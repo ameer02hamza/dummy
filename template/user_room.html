@@ -1,0 +1,57 @@
+{% load static %}
+<html>
+  <head>
+    <script src="{% static 'django_eventstream/json2.js' %}"></script>
+    <script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
+    <script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
+   
+  </head>
+  <body>
+    <div>hrllo</div>
+
+
+    <script type="text/javascript">
+     
+
+      var uri = '/noti/' + encodeURIComponent('{{ room_id }}') + '/events/';
+      var es = new ReconnectingEventSource(uri, {
+        lastEventId: '{{ last_id }}'
+      });
+
+      var firstConnect = true;
+
+      es.onopen = function (e) {
+        if(!firstConnect) {
+          console.log('*** connected', e.data, "data");
+        }
+        firstConnect = false;
+      };
+
+      es.onerror = function () {
+        console.log('*** connection lost, reconnecting...');
+      };
+
+      es.addEventListener('stream-reset', function () {
+        console.log('*** client too far behind, please refresh');
+      }, false);
+
+      es.addEventListener('stream-error', function (e) {
+        // hard stop
+        es.close();
+        e = JSON.parse(e.data);
+        console.log('*** stream error: ' + e.condition + ': ' + e.text);
+      }, false);
+
+      es.addEventListener('message', function (e) {
+        console.log('event: ' + e.data);
+        msg = JSON.parse(e.data);
+
+        // if an event arrives that was already in the initial pageload,
+        //   ignore it
+      }, false);
+
+      
+   
+  </script>
+  </body>
+</html>
