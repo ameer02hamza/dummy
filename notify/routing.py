@@ -4,10 +4,11 @@ from channels.http import AsgiHandler
 from channels.auth import AuthMiddlewareStack
 import django_eventstream
 
-urlpatterns = [url(r'^noti/(?P<room_id>[^/]+)/events/',
-                   AuthMiddlewareStack(URLRouter(django_eventstream.routing.urlpatterns)),
-                   {
-                       'format-channels': ['room-{room_id}']
-                   }),
-               url(r'', AsgiHandler),
-               ]
+urlpatterns = [
+    url(r'^events/',
+        AuthMiddlewareStack(URLRouter(django_eventstream.routing.urlpatterns)),
+        {
+            'channels': ['time']
+        }),
+    url(r'', AsgiHandler),
+]
